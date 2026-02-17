@@ -1,0 +1,23 @@
+# Python - backend
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+backend/venv/
+*.egg-info/
+
+# Environment variables
+.env
+*.env
+
+# IDEs
+.vscode/
+.DS_Store
+
+# Node (for React)
+node_modules/
+frontend/node_modules/
+frontend/build/
+
+# Logs
+*.log
