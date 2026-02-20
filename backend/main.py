@@ -2,7 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers.auth_routes import router as auth_router
 from routers.habit_routes import router as habit_router
-from routers.log_routes import router as log_router 
+from routers.log_routes import router as log_router
+from routers.analytics_routes import router as analytics_router
+from routers.competition_routes import router as competition_router
+from routers.notification_routes import router as notification_router
+
 
 # create FASTAPI app
 app = FastAPI(
@@ -28,6 +32,9 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(habit_router)
 app.include_router(log_router)
+app.include_router(analytics_router)
+app.include_router(competition_router)
+app.include_router(notification_router)
 
 
 # test server is running
@@ -35,5 +42,13 @@ app.include_router(log_router)
 def root():
     return {
         "message": "API is running!",
-        "docs": "http://localhost:8000/docs"
+        "docs": "http://localhost:8000/docs",
+        "features": [
+            "Authentication with JWT",
+            "Habit tracking with streaks",
+            "Weekly & monthly analytics",
+            "Live competitions & leaderboards",
+            "Achievements & badges",
+            "Smart notifications"
+        ]
     }

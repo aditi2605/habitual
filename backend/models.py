@@ -68,3 +68,28 @@ class Notification(Base):
     
     # relationships
     user = relationship("User", back_populates="notifications")
+
+# virtual competitions model
+class Competition(Base):
+    __tablename__ = "competitions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(String)
+    competition_type = Column(String)  # "longest_streak", "most_completions", "30_day_challenge"
+    start_date = Column(Date, nullable=False)
+    end_date = Column(Date, nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class CompetitionEntry(Base):
+    __tablename__ = "competition_entries"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    competition_id = Column(Integer, ForeignKey("competitions.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    habit_id = Column(Integer, ForeignKey("habits.id"), nullable=True)
+    score = Column(Integer, default=0)  # Their achievement (streak days, completions, etc)
+    joined_at = Column(DateTime, default=datetime.utcnow)
+    last_updated = Column(DateTime, default=datetime.utcnow)
