@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers.auth_routes import router as auth_router
 from routers.habit_routes import router as habit_router
+from routers.log_routes import router as log_router 
 
 # create FASTAPI app
 app = FastAPI(
@@ -26,6 +27,7 @@ app.add_middleware(
 # include routes(login, signup, habits(create, update, delete))
 app.include_router(auth_router)
 app.include_router(habit_router)
+app.include_router(log_router)
 
 
 # test server is running
