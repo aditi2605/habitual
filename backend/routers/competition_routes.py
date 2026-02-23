@@ -81,134 +81,145 @@ def get_competition_leaderboard(
     leaderboard = []
     current_user_entry = None
     
-    #  longest streak compitition───
-    if competition_id == "longest_streak":
-        # Find the longest single streak across all users
-        # Group by user, get their max streak
+    try:
+        # LONGEST STREAK COMPETITION 
+        if competition_id == "longest_streak":
+            # Get all users with active habits
+            users_with_habits = db.query(User).join(Habit).filter(
+                Habit.is_active == True,
+                Habit.streak_count > 0
+            ).distinct().all()
+            
+            # Create leaderboard from users
+            user_streaks = []
+            for user in users_with_habits:
+                max_habit = db.query(Habit).filter(
+                    Habit.user_id == user.id,
+                    Habit.is_active == True
+                ).order_by(Habit.streak_count.desc()).first()
+                
+                if max_habit:
+                    user_streaks.append({
+                        'user_id': user.id,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'streak': max_habit.streak_count,
+                        'habit_name': max_habit.name
+                    })
+            
+            # Sort by streak
+            user_streaks.sort(key=lambda x: x['streak'], reverse=True)
+            
+            # Build leaderboard
+            for rank, entry in enumerate(user_streaks[:limit], 1):
+                leaderboard_entry = {
+                    "rank": rank,
+                    "user": f"{entry['first_name']} {entry['last_name'][0]}.",
+                    "score": entry['streak'],
+                    "metric": "days",
+                    "habit": entry['habit_name'],
+                    "is_you": entry['user_id'] == current_user.id
+                }
+                leaderboard.append(leaderboard_entry)
+                
+                if entry['user_id'] == current_user.id:
+                    current_user_entry = leaderboard_entry
+            
+            title = "🔥 Longest Streak Leaderboard"
+            description = "Current streak on any habit"
         
-        results = db.query(
-            User.id,
-            User.first_name,
-            User.last_name,
-            func.max(Habit.streak_count).label('max_streak'),
-            Habit.name.label('habit_name')
-        ).join(Habit, User.id == Habit.user_id).filter(
-            Habit.is_active == True,
-            Habit.streak_count > 0
-        ).group_by(User.id).order_by(desc('max_streak')).limit(limit).all()
+        # MONTHLY COMPLETIONS
+        elif competition_id == "monthly_champion":
+            from datetime import date
+            first_day = date.today().replace(day=1)
+            
+            # Get completion counts
+            users_with_logs = db.query(User).join(HabitLog).filter(
+                HabitLog.log_date >= first_day,
+                HabitLog.completed == True
+            ).distinct().all()
+            
+            user_completions = []
+            for user in users_with_logs:
+                count = db.query(HabitLog).filter(
+                    HabitLog.user_id == user.id,
+                    HabitLog.log_date >= first_day,
+                    HabitLog.completed == True
+                ).count()
+                
+                user_completions.append({
+                    'user_id': user.id,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'completions': count
+                })
+            
+            user_completions.sort(key=lambda x: x['completions'], reverse=True)
+            
+            for rank, entry in enumerate(user_completions[:limit], 1):
+                leaderboard_entry = {
+                    "rank": rank,
+                    "user": f"{entry['first_name']} {entry['last_name'][0]}.",
+                    "score": entry['completions'],
+                    "metric": "completions",
+                    "is_you": entry['user_id'] == current_user.id
+                }
+                leaderboard.append(leaderboard_entry)
+                
+                if entry['user_id'] == current_user.id:
+                    current_user_entry = leaderboard_entry
+            
+            title = "📅 Monthly Champion Leaderboard"
+            description = "Total habits completed this month"
         
-        rank = 1
-        for r in results:
-            entry = {
-                "rank": rank,
-                "user": f"{r.first_name} {r.last_name[0]}.",  # Privacy: "Alex S."
-                "score": r.max_streak,
-                "metric": "days",
-                "habit": r.habit_name,
-                "is_you": r.id == current_user.id
+        else:
+            raise HTTPException(404, "Competition not found")
+        
+        # If current user isn't in top 10
+        if not current_user_entry and len(leaderboard) > 0:
+            current_user_entry = {
+                "rank": "11+",
+                "user": "You",
+                "score": 0,
+                "is_you": True,
+                "message": "Keep going to break into the top 10!"
             }
-            leaderboard.append(entry)
-            
-            if r.id == current_user.id:
-                current_user_entry = entry
-            
-            rank += 1
         
-        title = "🔥 Longest Streak Leaderboard"
-        description = "Current streak on any habit"
-    
-    # monthly completion
-    elif competition_id == "monthly_champion":
-        # Count total completions this month per user
-        first_day = date.today().replace(day=1)
+        # If no one is on leaderboard yet
+        if len(leaderboard) == 0:
+            leaderboard = [{
+                "rank": 1,
+                "user": f"{current_user.first_name} {current_user.last_name[0]}.",
+                "score": 0,
+                "metric": "days" if competition_id == "longest_streak" else "completions",
+                "is_you": True
+            }]
+            current_user_entry = leaderboard[0]
         
-        results = db.query(
-            User.id,
-            User.first_name,
-            User.last_name,
-            func.count(HabitLog.id).label('completions')
-        ).join(HabitLog, User.id == HabitLog.user_id).filter(
-            HabitLog.log_date >= first_day,
-            HabitLog.completed == True
-        ).group_by(User.id).order_by(desc('completions')).limit(limit).all()
-        
-        rank = 1
-        for r in results:
-            entry = {
-                "rank": rank,
-                "user": f"{r.first_name} {r.last_name[0]}.",
-                "score": r.completions,
-                "metric": "completions",
-                "is_you": r.id == current_user.id
-            }
-            leaderboard.append(entry)
-            
-            if r.id == current_user.id:
-                current_user_entry = entry
-            
-            rank += 1
-        
-        title = "📅 Monthly Champion Leaderboard"
-        description = "Total habits completed this month"
-    
-    #100day club
-    elif competition_id == "hundred_club":
-        # Users who've hit 100+ day streak
-        results = db.query(
-            User.id,
-            User.first_name,
-            User.last_name,
-            Habit.best_streak,
-            Habit.name
-        ).join(Habit, User.id == Habit.user_id).filter(
-            Habit.best_streak >= 100
-        ).order_by(desc(Habit.best_streak)).limit(limit).all()
-        
-        rank = 1
-        for r in results:
-            entry = {
-                "rank": rank,
-                "user": f"{r.first_name} {r.last_name[0]}.",
-                "score": r.best_streak,
-                "metric": "days",
-                "habit": r.name,
-                "is_you": r.id == current_user.id,
-                "badge": "💎"
-            }
-            leaderboard.append(entry)
-            
-            if r.id == current_user.id:
-                current_user_entry = entry
-            
-            rank += 1
-        
-        title = "💎 100-Day Club (Legends Only)"
-        description = "Users who reached 100+ day streaks"
-    
-    else:
-        raise HTTPException(404, "Competition not found")
-    
-    # If current user isn't in top 10, find their rank
-    if not current_user_entry:
-        # Calculate their actual rank and score
-        current_user_entry = {
-            "rank": "11+",
-            "user": "You",
-            "score": 0,
-            "is_you": True,
-            "message": "Keep going to break into the top 10!"
+        return {
+            "competition": {
+                "id": competition_id,
+                "title": title,
+                "description": description
+            },
+            "leaderboard": leaderboard,
+            "your_position": current_user_entry,
+            "motivation": get_motivation_message(current_user_entry.get("rank", 999))
         }
     
-    return {
-        "competition": {
-            "id": competition_id,
-            "title": title,
-            "description": description
-        },
-        "leaderboard": leaderboard,
-        "your_position": current_user_entry,
-        "motivation": get_motivation_message(current_user_entry.get("rank", 999))
-    }
+    except Exception as e:
+        print(f"Error loading leaderboard: {e}")
+        # Return empty leaderboard instead of crashing
+        return {
+            "competition": {
+                "id": competition_id,
+                "title": "Competition Leaderboard",
+                "description": "Loading..."
+            },
+            "leaderboard": [],
+            "your_position": None,
+            "motivation": "Start logging habits to join the leaderboard!"
+        }
 
 
 def get_motivation_message(rank):
