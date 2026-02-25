@@ -10,7 +10,7 @@ from routers.log_routes import router as log_router
 from routers.analytics_routes import router as analytics_router
 from routers.competition_routes import router as competition_router
 from routers.notification_routes import router as notification_router
-from database import get_db, SessionLocal
+from database import get_db
 from models import Habit, User, HabitLog
 from auth import get_current_user
 
