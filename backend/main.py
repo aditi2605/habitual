@@ -10,7 +10,7 @@ from routers.log_routes import router as log_router
 from routers.analytics_routes import router as analytics_router
 from routers.competition_routes import router as competition_router
 from routers.notification_routes import router as notification_router
-from database import get_db
+from database import get_db, engine, Base
 from models import Habit, User, HabitLog
 from auth import get_current_user
 
@@ -20,8 +20,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS
+@app.on_event("startup")
+def create_tables():
+    """Create all database tables if they don't exist"""
+    print("Creating database tables...")
+    Base.metadata.create_all(bind=engine)
+    print("Database tables created successfully!")
 
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[

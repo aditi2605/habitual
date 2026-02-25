@@ -19,14 +19,13 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
 # password hashing uing bcrypy
-
 def hash_password(password: str) -> str:
     """Hash a password using bcrypt"""
     # Convert password to bytes and hash it
     password_bytes = password.encode('utf-8')
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password_bytes, salt)
-    return hashed.decode('utf-8')  # Return as string for database storage
+    return hashed.decode('utf-8') 
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
