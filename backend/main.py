@@ -74,12 +74,12 @@ app.add_middleware(
 )
 
 # Routes
-app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
-app.include_router(habit_router, prefix="/habits", tags=["Habits"])
-app.include_router(log_router, prefix="/logs", tags=["Logs"])
-app.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
-app.include_router(competition_router, prefix="/competitions", tags=["Competitions"])
-app.include_router(notification_router, prefix="/notifications", tags=["Notifications"])
+app.include_router(auth_router, tags=["Authentication"])
+app.include_router(habit_router, tags=["Habits"])
+app.include_router(log_router, tags=["Logs"])
+app.include_router(analytics_router, tags=["Analytics"])
+app.include_router(competition_router, tags=["Competitions"])
+app.include_router(notification_router, tags=["Notifications"])
 
 # Health checks
 @app.get("/")
