@@ -1,6 +1,4 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import date
@@ -12,60 +10,90 @@ from routers.log_routes import router as log_router
 from routers.analytics_routes import router as analytics_router
 from routers.competition_routes import router as competition_router
 from routers.notification_routes import router as notification_router
+from database import get_db, SessionLocal
+from models import Habit
 
-from database import get_db
-from models import Habit, HabitLog, User
-from auth import get_current_user
-
-
-# create FASTAPI app
 app = FastAPI(
-    title="Habitual ",
-    description="Habit tracking app",
-    version="2.0.0"
+    title="Habitual API",
+    description="Habit Tracking API with analytics and competitions",
+    version="1.0.0"
 )
 
+# Core configuration
 
-# Custom CORS middleware that allows Vercel subdomains
-@app.middleware("http")
-async def custom_cors_middleware(request, call_next):
-    origin = request.headers.get("origin")
-    
+def is_allowed_origin(origin: str) -> bool:
+    """Check if origin is allowed"""
     allowed_origins = [
         "http://localhost:5173",
         "http://localhost:3000",
-        "https://habitual-pi.vercel.app",
     ]
     
+    # Allow exact matches
+    if origin in allowed_origins:
+        return True
+    
     # Allow all *.vercel.app domains
-    if origin and (origin in allowed_origins or re.match(r"https://.*\.vercel\.app", origin)):
-        response = await call_next(request)
+    if re.match(r"https://.*\.vercel\.app$", origin):
+        return True
+    
+    return False
+
+@app.middleware("http")
+async def cors_middleware(request, call_next):
+    origin = request.headers.get("origin")
+    
+    # Handle preflight OPTIONS requests
+    if request.method == "OPTIONS":
+        if origin and is_allowed_origin(origin):
+            response = Response(status_code=200)
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+            response.headers["Access-Control-Allow-Headers"] = "*"
+            response.headers["Access-Control-Max-Age"] = "600"
+            return response
+        return Response(status_code=403)
+    
+    # Handle actual requests
+    response = await call_next(request)
+    
+    if origin and is_allowed_origin(origin):
         response.headers["Access-Control-Allow-Origin"] = origin
         response.headers["Access-Control-Allow-Credentials"] = "true"
-        response.headers["Access-Control-Allow-Methods"] = "*"
-        response.headers["Access-Control-Allow-Headers"] = "*"
-        return response
     
-    return await call_next(request)
-# cors middleware(Allow React frontend to connect)
-# This allows your React app (running on localhost:3000) 
-# to make requests to this API (running on localhost:8000)
+    return response
 
+# Standard CORS middleware as backup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173",  "http://localhost:3000", "https://habitual-git-main-aditi2605s-projects.vercel.app", "https://habitual-f2petkwde-aditi2605s-projects.vercel.app"],  
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
-    allow_methods=["*"], 
-    allow_headers=["*"], 
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# include routes(login, signup, habits(create, update, delete))
-app.include_router(auth_router)
-app.include_router(habit_router)
-app.include_router(log_router)
-app.include_router(analytics_router)
-app.include_router(competition_router)
-app.include_router(notification_router)
+# Routes
+
+app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(habit_router, prefix="/habits", tags=["Habits"])
+app.include_router(log_router, prefix="/logs", tags=["Logs"])
+app.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
+app.include_router(competition_router, prefix="/competitions", tags=["Competitions"])
+app.include_router(notification_router, prefix="/notifications", tags=["Notifications"])
+
+# test
+
+@app.get("/")
+async def root():
+    return {
+        "message": "Habitual API is running",
+        "version": "1.0.0",
+        "docs": "/docs"
+    }
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
 
 
 # daily habit status
@@ -121,18 +149,3 @@ def get_today_status(
         "habits": habits_status
     }
 
-#  server is running
-@app.get("/")
-def root():
-    return {
-        "message": "API is running!",
-        "docs": "http://localhost:8000/docs",
-        "features": [
-            "Authentication with JWT",
-            "Habit tracking with streaks",
-            "Weekly & monthly analytics",
-            "Live competitions & leaderboards",
-            "Achievements & badges",
-            "Smart notifications"
-        ]
-    }
