@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response, Depends
+from fastapi import FastAPI, Response, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import date
@@ -20,60 +20,31 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Core configuration
+# CORS
 
-def is_allowed_origin(origin: str) -> bool:
-    """Check if origin is allowed"""
-    allowed_origins = [
-        "http://localhost:5173",
-        "http://localhost:3000",
-    ]
-    
-    # Allow exact matches
-    if origin in allowed_origins:
-        return True
-    
-    # Allow all *.vercel.app domains
-    if re.match(r"https://.*\.vercel\.app$", origin):
-        return True
-    
-    return False
-
-@app.middleware("http")
-async def cors_middleware(request, call_next):
-    origin = request.headers.get("origin")
-    
-    # Handle preflight OPTIONS requests
-    if request.method == "OPTIONS":
-        if origin and is_allowed_origin(origin):
-            response = Response(status_code=200)
-            response.headers["Access-Control-Allow-Origin"] = origin
-            response.headers["Access-Control-Allow-Credentials"] = "true"
-            response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
-            response.headers["Access-Control-Allow-Headers"] = "*"
-            response.headers["Access-Control-Max-Age"] = "600"
-            return response
-        return Response(status_code=403)
-    
-    # Handle actual requests
-    response = await call_next(request)
-    
-    if origin and is_allowed_origin(origin):
-        response.headers["Access-Control-Allow-Origin"] = origin
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-    
-    return response
-
-# Standard CORS middleware as backup
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origin_regex=r"https://.*\.vercel\.app$", 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Routes
+# Also allow localhost for development
+@app.middleware("http")
+async def add_localhost_cors(request: Request, call_next):
+    origin = request.headers.get("origin")
+    
+    if origin and (origin.startswith("http://localhost:") or origin.startswith("https://.*\.vercel\.app")):
+        response = await call_next(request)
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        return response
+    
+    return await call_next(request)
+
+# ==================== ROUTES ====================
+
 app.include_router(auth_router, tags=["Authentication"])
 app.include_router(habit_router, tags=["Habits"])
 app.include_router(log_router, tags=["Logs"])
