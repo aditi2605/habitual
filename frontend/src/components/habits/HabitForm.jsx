@@ -1,281 +1,310 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Clock, ChevronDown } from 'lucide-react';
 
-const EMOJI_OPTIONS = ['🧘', '💧', '📖', '🏃', '🍎', '💪', '🎯', '✍️', '🌱', '☕', '🚴', '🧠', '😴', '🎨', '🎵'];
-const COLOR_OPTIONS = ['#6db85c', '#60a5fa', '#e8c46a', '#e87a6a', '#c084fc', '#34d399'];
-
-const HABIT_SUGGESTIONS = [
-  { name: 'Morning Meditation', icon: '🧘', time: '7:00 AM', frequency: 'daily' },
-  { name: 'Drink 8 Glasses of Water', icon: '💧', time: '9:00 AM', frequency: 'daily' },
-  { name: 'Read 20 Pages', icon: '📖', time: '9:00 PM', frequency: 'daily' },
-  { name: 'Evening Run', icon: '🏃', time: '6:00 PM', frequency: 'daily' },
-  { name: 'No Junk Food', icon: '🍎', time: '', frequency: 'daily' },
-  { name: 'Gym Workout', icon: '💪', time: '6:00 AM', frequency: 'daily' },
+const PRESET_HABITS = [
+  { emoji: '🏃', name: 'Morning Run', defaultTime: '06:00' },
+  { emoji: '🏋️', name: 'Gym Workout', defaultTime: '07:00' },
+  { emoji: '💧', name: 'Drink 2L Water', defaultTime: '09:00' },
+  { emoji: '📖', name: 'Read 20 Pages', defaultTime: '20:00' },
+  { emoji: '🧘', name: 'Meditation', defaultTime: '06:30' },
+  { emoji: '✍️', name: 'Journaling', defaultTime: '21:00' },
+  { emoji: '🥗', name: 'Healthy Meal', defaultTime: '12:00' },
+  { emoji: '🚫', name: 'No Social Media', defaultTime: '22:00' },
+  { emoji: '💤', name: 'Sleep 8 Hours', defaultTime: '22:30' },
+  { emoji: '🎯', name: 'Work on Side Project', defaultTime: '19:00' },
+  { emoji: '🧠', name: 'Learn Something New', defaultTime: '18:00' },
+  { emoji: '🤝', name: 'Call Family/Friends', defaultTime: '17:00' },
 ];
 
-// iOS-Style Time Picker Component
-const IOSTimePicker = ({ value, onChange, onClose }) => {
-  const [hour, setHour] = useState('7');
-  const [minute, setMinute] = useState('00');
-  const [period, setPeriod] = useState('AM');
+const HabitForm = ({ habit, onSubmit, onCancel }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    reminder_time: '09:00',
+    icon: '⚡',
+  });
+  const [showPresets, setShowPresets] = useState(true);
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [timePickerValue, setTimePickerValue] = useState({ hour: '09', minute: '00', period: 'AM' });
 
   useEffect(() => {
-    if (value) {
-      const match = value.match(/(\d+):(\d+)\s*(AM|PM)/i);
-      if (match) {
-        setHour(match[1]);
-        setMinute(match[2]);
-        setPeriod(match[3].toUpperCase());
+    if (habit) {
+      setFormData({
+        name: habit.name || '',
+        description: habit.description || '',
+        reminder_time: habit.reminder_time || '09:00',
+        icon: habit.icon || '⚡',
+      });
+      setShowPresets(false);
+      
+      // Parse existing time
+      if (habit.reminder_time) {
+        const [hours, minutes] = habit.reminder_time.split(':');
+        const hour24 = parseInt(hours);
+        const period = hour24 >= 12 ? 'PM' : 'AM';
+        const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+        setTimePickerValue({
+          hour: hour12.toString().padStart(2, '0'),
+          minute: minutes,
+          period
+        });
       }
     }
-  }, [value]);
+  }, [habit]);
 
-  const handleDone = () => {
-    onChange(`${hour}:${minute} ${period}`);
-    onClose();
+  const handlePresetSelect = (preset) => {
+    setFormData({
+      name: preset.name,
+      description: '',
+      reminder_time: preset.defaultTime,
+      icon: preset.emoji,
+    });
+    setShowPresets(false);
+    
+    // Parse preset time
+    const [hours, minutes] = preset.defaultTime.split(':');
+    const hour24 = parseInt(hours);
+    const period = hour24 >= 12 ? 'PM' : 'AM';
+    const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+    setTimePickerValue({
+      hour: hour12.toString().padStart(2, '0'),
+      minute: minutes,
+      period
+    });
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50" onClick={onClose}>
-      <div 
-        className="bg-surface border-t border-border rounded-t-3xl w-full max-w-md pb-safe"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <button onClick={onClose} className="text-green font-medium">Cancel</button>
-          <div className="font-semibold">Set Time</div>
-          <button onClick={handleDone} className="text-green font-semibold">Done</button>
-        </div>
-
-        {/* Picker Wheels */}
-        <div className="flex items-center justify-center py-6 gap-2">
-          {/* Hour Picker */}
-          <select
-            value={hour}
-            onChange={(e) => setHour(e.target.value)}
-            className="text-3xl bg-transparent border-none focus:outline-none text-center cursor-pointer"
-            style={{ width: '80px', appearance: 'none' }}
-          >
-            {[...Array(12)].map((_, i) => {
-              const h = String(i + 1).padStart(2, '0');
-              return <option key={h} value={h}>{h}</option>;
-            })}
-          </select>
-
-          <span className="text-3xl">:</span>
-
-          {/* Minute Picker */}
-          <select
-            value={minute}
-            onChange={(e) => setMinute(e.target.value)}
-            className="text-3xl bg-transparent border-none focus:outline-none text-center cursor-pointer"
-            style={{ width: '80px', appearance: 'none' }}
-          >
-            {['00', '15', '30', '45'].map((m) => (
-              <option key={m} value={m}>{m}</option>
-            ))}
-          </select>
-
-          {/* AM/PM Picker */}
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            className="text-3xl bg-transparent border-none focus:outline-none text-center cursor-pointer ml-2"
-            style={{ width: '80px', appearance: 'none' }}
-          >
-            <option value="AM">AM</option>
-            <option value="PM">PM</option>
-          </select>
-        </div>
-
-        {/* Visual wheel effect */}
-        <div className="absolute inset-x-0 top-[100px] h-12 border-y-2 border-green/30 pointer-events-none" />
-      </div>
-    </div>
-  );
+  const handleTimeChange = (field, value) => {
+  const newTime = { ...timePickerValue, [field]: value };
+  setTimePickerValue(newTime);
+  
+  // Convert to 24h format for backend
+  let hour24 = parseInt(newTime.hour);
+  if (newTime.period === 'PM' && hour24 !== 12) {
+    hour24 += 12;
+  } else if (newTime.period === 'AM' && hour24 === 12) {
+    hour24 = 0;
+  }
+  
+  const formattedTime = `${hour24.toString().padStart(2, '0')}:${newTime.minute}`;
+  console.log('Setting time to:', formattedTime); 
+  
+  setFormData({
+    ...formData,
+    reminder_time: formattedTime
+  });
 };
 
-const HabitForm = ({ onSubmit, onCancel, initialData = null }) => {
-  const [showSuggestions, setShowSuggestions] = useState(!initialData);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [formData, setFormData] = useState({
-    name: initialData?.name || '',
-    icon: initialData?.icon || '🌱',
-    color: initialData?.color || '#6db85c',
-    target_time: initialData?.target_time || '',
-    frequency: initialData?.frequency || 'daily',
-    description: initialData?.description || '',
-  });
-
-  const handleSuggestionClick = (suggestion) => {
-    setFormData({
-      ...formData,
-      name: suggestion.name,
-      icon: suggestion.icon,
-      target_time: suggestion.time,
-    });
-    setShowSuggestions(false);
+ const handleSubmit = (e) => {
+  e.preventDefault();
+  
+  const submitData = {
+    ...formData,
+    reminder_time: formData.reminder_time || null, 
   };
+  
+  console.log('Submitting habit with data:', submitData);
+  onSubmit(submitData);
+};
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
+  // Generate minute options from 00 to 60
+  const minuteOptions = [];
+  for (let i = 0; i <= 60; i++) {
+    minuteOptions.push(i.toString().padStart(2, '0'));
+  }
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-surface border border-border rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-surface border-b border-border p-6 flex items-center justify-between">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onCancel}>
+      <div className="bg-surface border border-border rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-xl font-serif">
-            {initialData ? 'Edit Habit' : 'Create New Habit'}
+            {habit ? 'Edit Habit' : 'Create New Habit'}
           </h2>
-          <button onClick={onCancel} className="text-gray-500 hover:text-white">
+          <button onClick={onCancel} className="p-2 hover:bg-bg rounded-lg transition">
             <X size={20} />
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
-          {/* Suggestions */}
-          {showSuggestions && !initialData && (
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="block text-sm text-gray-400">Popular Habits</label>
+        <form onSubmit={handleSubmit} className="p-6">
+          
+          {/* Preset Habits */}
+          {showPresets && !habit && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xs uppercase tracking-wider text-gray-500">Popular Habits</h3>
                 <button
                   type="button"
-                  onClick={() => setShowSuggestions(false)}
-                  className="text-xs text-green hover:underline"
+                  onClick={() => setShowPresets(false)}
+                  className="text-xs text-green-light hover:text-green transition"
                 >
-                  Create custom →
+                  Skip →
                 </button>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                {HABIT_SUGGESTIONS.map((suggestion, idx) => (
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                {PRESET_HABITS.map((preset, index) => (
                   <button
-                    key={idx}
+                    key={index}
                     type="button"
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className="flex items-center gap-2 p-3 bg-bg border border-border rounded-xl hover:border-green transition text-left text-sm"
+                    onClick={() => handlePresetSelect(preset)}
+                    className="p-4 bg-bg border border-border rounded-xl hover:border-green transition flex flex-col items-center gap-2 text-center"
                   >
-                    <span className="text-xl">{suggestion.icon}</span>
-                    <span className="flex-1 truncate">{suggestion.name}</span>
+                    <span className="text-2xl">{preset.emoji}</span>
+                    <span className="text-xs">{preset.name}</span>
                   </button>
                 ))}
               </div>
-              <button
-                type="button"
-                onClick={() => setShowSuggestions(false)}
-                className="w-full mt-3 py-2 border border-dashed border-border rounded-xl text-sm text-gray-400 hover:border-green hover:text-green transition"
-              >
-                + Create custom habit
-              </button>
+              <div className="relative text-center">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border"></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="px-4 bg-surface text-xs uppercase tracking-wider text-gray-500">
+                    Or create custom
+                  </span>
+                </div>
+              </div>
             </div>
           )}
 
-          {/* Form */}
-          {(!showSuggestions || initialData) && (
-            <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Custom Habit Form */}
+          {(!showPresets || habit) && (
+            <div className="space-y-6">
+              
+              {/* Habit Name */}
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Habit Name</label>
+                <label className="block text-xs uppercase tracking-wider text-gray-500 mb-2">
+                  Habit Name <span className="text-coral">*</span>
+                </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Morning Meditation"
-                  className="w-full bg-bg border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-green"
+                  placeholder="e.g., Morning Workout"
+                  className="w-full px-4 py-3 bg-bg border border-border rounded-xl focus:border-green focus:outline-none transition"
                   required
                 />
               </div>
 
+              {/* Description */}
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Icon</label>
-                <div className="flex gap-2 flex-wrap">
-                  {EMOJI_OPTIONS.map((emoji) => (
-                    <button
-                      key={emoji}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, icon: emoji })}
-                      className={`w-12 h-12 rounded-xl text-xl flex items-center justify-center transition ${
-                        formData.icon === emoji
-                          ? 'bg-green/20 border-2 border-green'
-                          : 'bg-bg border border-border hover:border-green/50'
-                      }`}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
+                <label className="block text-xs uppercase tracking-wider text-gray-500 mb-2">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Optional details about your habit..."
+                  className="w-full px-4 py-3 bg-bg border border-border rounded-xl focus:border-green focus:outline-none transition resize-none"
+                  rows="3"
+                />
+              </div>
+
+              {/* Reminder Time */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-gray-500 mb-2">
+                  Reminder Time
+                </label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowTimePicker(!showTimePicker)}
+                    className="w-full px-4 py-3 bg-bg border border-border rounded-xl hover:border-green transition flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Clock size={18} className="text-gray-500" />
+                      <span>{timePickerValue.hour}:{timePickerValue.minute} {timePickerValue.period}</span>
+                    </div>
+                    <ChevronDown size={18} className={`text-gray-500 transition-transform ${showTimePicker ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Time Picker Dropdown */}
+                  {showTimePicker && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-surface border border-border rounded-xl p-4 shadow-2xl z-10">
+                      <div className="flex items-center justify-center gap-2 mb-4">
+                        {/* Hour */}
+                        <select
+                          value={timePickerValue.hour}
+                          onChange={(e) => handleTimeChange('hour', e.target.value)}
+                          className="px-3 py-2 bg-bg border border-border rounded-lg focus:border-green focus:outline-none text-center text-lg font-semibold w-20"
+                        >
+                          {[...Array(12)].map((_, i) => {
+                            const hour = (i + 1).toString().padStart(2, '0');
+                            return <option key={hour} value={hour}>{hour}</option>;
+                          })}
+                        </select>
+
+                        <span className="text-2xl font-bold">:</span>
+
+                        {/* Minute (00-60) */}
+                        <select
+                          value={timePickerValue.minute}
+                          onChange={(e) => handleTimeChange('minute', e.target.value)}
+                          className="px-3 py-2 bg-bg border border-border rounded-lg focus:border-green focus:outline-none text-center text-lg font-semibold w-20"
+                        >
+                          {minuteOptions.map(min => (
+                            <option key={min} value={min}>{min}</option>
+                          ))}
+                        </select>
+
+                        {/* AM/PM */}
+                        <select
+                          value={timePickerValue.period}
+                          onChange={(e) => handleTimeChange('period', e.target.value)}
+                          className="px-3 py-2 bg-bg border border-border rounded-lg focus:border-green focus:outline-none text-center text-lg font-semibold w-20"
+                        >
+                          <option value="AM">AM</option>
+                          <option value="PM">PM</option>
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowTimePicker(false)}
+                        className="w-full py-2 bg-green/20 border border-green/30 rounded-lg text-green-light font-semibold hover:bg-green/30 transition"
+                      >
+                        Done
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
+              {/* Icon */}
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Color</label>
-                <div className="flex gap-3">
-                  {COLOR_OPTIONS.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, color })}
-                      className={`w-10 h-10 rounded-full transition ${
-                        formData.color === color ? 'ring-2 ring-white ring-offset-2 ring-offset-bg' : ''
-                      }`}
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
+                <label className="block text-xs uppercase tracking-wider text-gray-500 mb-2">
+                  Icon (Emoji)
+                </label>
+                <input
+                  type="text"
+                  value={formData.icon}
+                  onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                  placeholder="⚡"
+                  className="w-20 px-4 py-3 bg-bg border border-border rounded-xl focus:border-green focus:outline-none transition text-center text-2xl"
+                  maxLength="2"
+                />
               </div>
 
-              {/* iOS Time Picker Trigger */}
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Target Time</label>
-                <button
-                  type="button"
-                  onClick={() => setShowTimePicker(true)}
-                  className="w-full bg-bg border border-border rounded-xl px-4 py-3 text-left hover:border-green transition"
-                >
-                  {formData.target_time || 'Set time'}
-                </button>
-              </div>
-
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Frequency</label>
-                <select
-                  value={formData.frequency}
-                  onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
-                  className="w-full bg-bg border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-green"
-                >
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                </select>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={onCancel}
-                  className="flex-1 px-4 py-3 rounded-xl border border-border hover:border-green transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-green to-green-light text-white font-semibold hover:shadow-lg hover:shadow-green/20 transition"
-                >
-                  {initialData ? 'Update' : 'Create'}
-                </button>
-              </div>
-            </form>
+            </div>
           )}
-        </div>
-      </div>
 
-      {/* iOS Time Picker Modal */}
-      {showTimePicker && (
-        <IOSTimePicker
-          value={formData.target_time}
-          onChange={(time) => setFormData({ ...formData, target_time: time })}
-          onClose={() => setShowTimePicker(false)}
-        />
-      )}
+          {/* Actions */}
+          <div className="flex gap-3 mt-8 pt-6 border-t border-border">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 px-6 py-3 bg-bg border border-border rounded-xl hover:border-gray-600 transition font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-green to-green-light text-white rounded-xl hover:shadow-lg hover:shadow-green/20 transition font-semibold"
+            >
+              {habit ? 'Update Habit' : 'Create Habit'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

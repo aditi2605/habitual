@@ -37,9 +37,6 @@ const Login = () => {
         
         <div className="relative z-10 max-w-md">
           <div className="text-4xl font-serif text-green-light mb-6 flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-green to-green-light rounded-xl flex items-center justify-center text-2xl">
-              🌿
-            </div>
             habitual
           </div>
           
@@ -86,9 +83,6 @@ const Login = () => {
 
           <div className="mb-8">
             <div className="text-2xl font-serif text-green-light mb-2 flex items-center gap-2 lg:hidden">
-              <div className="w-8 h-8 bg-gradient-to-br from-green to-green-light rounded-lg flex items-center justify-center text-lg">
-                🌿
-              </div>
               habitual
             </div>
             <h1 className="text-3xl font-serif mb-2">Welcome back</h1>

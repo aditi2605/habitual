@@ -33,15 +33,12 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-bg flex">
-      {/* Left Side - Decoration (same as login) */}
+      {/* Left Side - Decoration */}
       <div className="hidden lg:flex flex-1 bg-gradient-to-br from-green/10 to-bg items-center justify-center p-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzZkYjg1YyIgc3Ryb2tlLW9wYWNpdHk9IjAuMDUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-50" />
         
         <div className="relative z-10 max-w-md">
           <div className="text-4xl font-serif text-green-light mb-6 flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-green to-green-light rounded-xl flex items-center justify-center text-2xl">
-              🌿
-            </div>
             habitual
           </div>
           
@@ -84,9 +81,6 @@ const Signup = () => {
 
           <div className="mb-8">
             <div className="text-2xl font-serif text-green-light mb-2 flex items-center gap-2 lg:hidden">
-              <div className="w-8 h-8 bg-gradient-to-br from-green to-green-light rounded-lg flex items-center justify-center text-lg">
-                🌿
-              </div>
               habitual
             </div>
             <h1 className="text-3xl font-serif mb-2">Create your account</h1>
@@ -161,7 +155,7 @@ const Signup = () => {
                   Creating account...
                 </>
               ) : (
-                'Create my account 🌱'
+                'Create my account'
               )}
             </button>
 

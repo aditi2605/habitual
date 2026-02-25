@@ -40,7 +40,7 @@ class Habitual(BaseModel):
     icon: Optional[str] = None
     color: Optional[str] = None
     target_time: Optional[str] = None
-    frequecy: Optional[str] = None
+    frequency: Optional[str] = None
     description: Optional[str] = None
 
 class HabitResponse(BaseModel):
@@ -68,7 +68,7 @@ class HabitLogResponse(BaseModel):
     habit_id:int
     log_date: date
     completed: bool
-    compleated_at: Optional[datetime]
+    completed_at: Optional[datetime] 
     notes: Optional[str]
 
     class Config:

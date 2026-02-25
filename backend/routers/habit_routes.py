@@ -53,9 +53,7 @@ def create_habit(
     # Save to database
     db.add(new_habit)
     db.commit()
-    db.refresh(new_habit)  
-    
-    #  Return the habit
+    db.refresh(new_habit)   
     return new_habit
 
 
