@@ -4,6 +4,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import date
+import re
 
 from routers.auth_routes import router as auth_router
 from routers.habit_routes import router as habit_router
@@ -25,13 +26,34 @@ app = FastAPI(
 )
 
 
+# Custom CORS middleware that allows Vercel subdomains
+@app.middleware("http")
+async def custom_cors_middleware(request, call_next):
+    origin = request.headers.get("origin")
+    
+    allowed_origins = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://habitual-pi.vercel.app",
+    ]
+    
+    # Allow all *.vercel.app domains
+    if origin and (origin in allowed_origins or re.match(r"https://.*\.vercel\.app", origin)):
+        response = await call_next(request)
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
+    
+    return await call_next(request)
 # cors middleware(Allow React frontend to connect)
 # This allows your React app (running on localhost:3000) 
 # to make requests to this API (running on localhost:8000)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "https://habitual-git-main-aditi2605s-projects.vercel.app", "https://habitual-f2petkwde-aditi2605s-projects.vercel.app"],  
+    allow_origins=["http://localhost:5173",  "http://localhost:3000", "https://habitual-git-main-aditi2605s-projects.vercel.app", "https://habitual-f2petkwde-aditi2605s-projects.vercel.app"],  
     allow_credentials=True,
     allow_methods=["*"], 
     allow_headers=["*"], 
