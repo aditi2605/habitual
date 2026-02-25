@@ -3,7 +3,6 @@ from typing import Optional
 from datetime import datetime, date
 
 # user schema
-
 class UserCreate(BaseModel):
     email: EmailStr
     password: str

@@ -67,47 +67,45 @@ def signup(
 
 
 # LOGIN (Authenticate existing user)
-
-
 @router.post("/login", response_model=Token)
-def login(
-    credentials: UserLogin, 
-    db: Session = Depends(get_db)
-):
-    
-    # Find user by email
-    user = db.query(User).filter(User.email == credentials.email).first()
-    
-    if not user:
-        # if User doesn't exist
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password" 
-        )
-    
-    # Verify password
+def login(credentials: UserLogin, db: Session = Depends(get_db)):
+    try:
+        print("LOGIN HIT")
+        print("Incoming:", credentials)
 
-    password_correct = verify_password(credentials.password, user.hashed_password)
-    
-    if not password_correct:
-        # if Wrong password
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password"
-        )
-    
-    # Generate JWT token 
-    access_token = create_access_token(
-        data={"sub": user.email},
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-    
-    #  Return token 
-    return {
-        "access_token": access_token,
-        "token_type": "bearer"
-    }
+        user = db.query(User).filter(User.email == credentials.email).first()
+        print("User found:", user)
 
+        if not user:
+            raise HTTPException(
+                status_code=401,
+                detail="Incorrect email or password"
+            )
+
+        print("Stored hash:", user.hashed_password)
+
+        password_correct = verify_password(credentials.password, user.hashed_password)
+        print("Password match:", password_correct)
+
+        if not password_correct:
+            raise HTTPException(
+                status_code=401,
+                detail="Incorrect email or password"
+            )
+
+        access_token = create_access_token(
+            data={"sub": user.email},
+            expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        )
+
+        return {
+            "access_token": access_token,
+            "token_type": "bearer"
+        }
+
+    except Exception as e:
+        print("LOGIN ERROR:", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 # (Test if logged in)
 
