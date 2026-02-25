@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response, Depends, Request
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import date
@@ -24,26 +24,15 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https://.*\.vercel\.app$", 
+    allow_origins=[
+        "http://localhost:3000",
+        "https://habitual-pi.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Also allow localhost for development
-@app.middleware("http")
-async def add_localhost_cors(request: Request, call_next):
-    origin = request.headers.get("origin")
-    
-    if origin and (origin.startswith("http://localhost:") or origin.startswith("https://.*\.vercel\.app")):
-        response = await call_next(request)
-        response.headers["Access-Control-Allow-Origin"] = origin
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        return response
-    
-    return await call_next(request)
-
-# ==================== ROUTES ====================
+# routes
 
 app.include_router(auth_router, tags=["Authentication"])
 app.include_router(habit_router, tags=["Habits"])
