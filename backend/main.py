@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import date
-import re
+
 
 from routers.auth_routes import router as auth_router
 from routers.habit_routes import router as habit_router
