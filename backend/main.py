@@ -20,8 +20,8 @@ from auth import get_current_user
 # create FASTAPI app
 app = FastAPI(
     title="Habitual ",
-    description="Habit tracking app with AI-powered insights",
-    version="1.0.0"
+    description="Habit tracking app",
+    version="2.0.0"
 )
 
 
