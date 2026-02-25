@@ -40,28 +40,28 @@
 ## 🖼️ Screenshots
 
 ### Landing Page
-![Landing](./screenshots/landing.png)
+![Landing](./frontend/public/images/screenshots/landing.png)
 *Beautiful, interactive landing page*
 
 ### Signup Page
-![Signup](./screenshots/signup.png)
+![Signup](./frontend/public/images/screenshots/signup.png)
 
 
 ### Login Page
-![Login](./screenshots/login.png)
+![Login](./frontend/public/images/screenshots/login.png)
 
 
 ### Dashboard
-![Dashboard](./screenshots/dashboard.png)
+![Dashboard](./frontend/public/images/screenshots/dashboard.png)
 *Track your daily habits with real-time progress updates*
 
 ### Weekly Analytics
-![Analytics](./screenshots/analytics.png)
+![Analytics](./frontend/public/images/screenshots//analytics.png)
 *Visualize your performance with color-coded charts*
 
 
 ### Leaderboard
-![Leaderboard](./screenshots/leaderboard.png)
+![Leaderboard](./frontend/public/images/screenshots/leaderboard.png)
 *Compete globally and earn badges*
 
 
