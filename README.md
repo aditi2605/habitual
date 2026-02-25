@@ -40,7 +40,7 @@
 ## 🖼️ Screenshots
 
 ### Landing Page
-![Landing](./frontend/public/images/screenshots/landing.png)
+![Landing](./frontend/public/images/screenshots/landingpage.png)
 *Beautiful, interactive landing page*
 
 ### Signup Page

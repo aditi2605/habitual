@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import date
@@ -11,7 +11,8 @@ from routers.analytics_routes import router as analytics_router
 from routers.competition_routes import router as competition_router
 from routers.notification_routes import router as notification_router
 from database import get_db, SessionLocal
-from models import Habit
+from models import Habit, User, HabitLog
+from auth import get_current_user
 
 app = FastAPI(
     title="Habitual API",
@@ -73,7 +74,6 @@ app.add_middleware(
 )
 
 # Routes
-
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(habit_router, prefix="/habits", tags=["Habits"])
 app.include_router(log_router, prefix="/logs", tags=["Logs"])
@@ -81,8 +81,7 @@ app.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
 app.include_router(competition_router, prefix="/competitions", tags=["Competitions"])
 app.include_router(notification_router, prefix="/notifications", tags=["Notifications"])
 
-# test
-
+# Health checks
 @app.get("/")
 async def root():
     return {
@@ -95,8 +94,7 @@ async def root():
 async def health_check():
     return {"status": "healthy"}
 
-
-# daily habit status
+# Daily habit status
 @app.get("/habits/today/status")
 def get_today_status(
     current_user: User = Depends(get_current_user),
@@ -148,4 +146,3 @@ def get_today_status(
         "completion_percentage": completion_pct,
         "habits": habits_status
     }
-
