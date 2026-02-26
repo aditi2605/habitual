@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.response import JSONResponse 
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from datetime import date
 from slowapi import Limiter, _rate_limit_exceeded_handler
