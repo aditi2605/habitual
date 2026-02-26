@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Medal, Crown, Loader2, TrendingUp, Trophy, Award, Flame, Target, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/layout/NavBar';
 import { competitions, auth } from '../services/api';
 
 const Leaderboard = () => {
@@ -108,7 +107,14 @@ const Leaderboard = () => {
 
   return (
     <div className="min-h-screen bg-bg">
-      {/* <Navbar user={user} /> */}
+      {/* Header with User Greeting */}
+      <div className="max-w-7xl mx-auto px-6 mb-4">
+        {user && (
+          <div className="text-sm text-gray-400">
+            Welcome back, <span className="text-green-light font-semibold">{user.first_name} !</span>
+          </div>
+        )}
+      </div>
 
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-6 py-4">
