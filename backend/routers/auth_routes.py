@@ -1,9 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.response import RedirectResponse
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.response import RedirectResponse 
 from sqlalchemy.orm import Session
 from datetime import timedelta
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 import os
 import httpx
 
@@ -12,9 +10,6 @@ from database import get_db
 from models import User
 from schemas import UserCreate, UserLogin, UserResponse, Token
 from auth import hash_password, verify_password, create_access_token, get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES
-
-# Initialize limiter
-limiter = Limiter(key_func=get_remote_address)
 
 
 # CREATE THE ROUTER
@@ -29,7 +24,6 @@ router = APIRouter(
 
 # Signup (Register new user)
 @router.post("/signup", response_model=Token, status_code=status.HTTP_201_CREATED)
-@limiter.limit("3/hour") 
 def signup(
     user_data: UserCreate, 
     db: Session = Depends(get_db)  
@@ -53,7 +47,7 @@ def signup(
         email=user_data.email,
         first_name=user_data.first_name,
         last_name=user_data.last_name,
-        hashed_password=hashed_pwd  # Store hashed version only!
+        hashed_password=hashed_pwd  
     )
     
     # Add to database
@@ -76,7 +70,6 @@ def signup(
 
 # LOGIN (Authenticate existing user)
 @router.post("/login", response_model=Token)
-@limiter.limit("3/hour")
 def login(credentials: UserLogin, db: Session = Depends(get_db)):
     try:
         print("LOGIN HIT")
@@ -119,7 +112,6 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
 # (Test if logged in)
 
 @router.get("/me", response_model=UserResponse)
-@limiter.limit("3/hour") 
 def get_current_user_info(
     current_user: User = Depends(get_current_user)
 ):
@@ -128,7 +120,6 @@ def get_current_user_info(
 
 # google Oauth
 @router.get("/google/login")
-@limiter.limit("3/hour") 
 async def google_login():
     """Initiate Google OAuth flow"""
     google_client_id = os.getenv("GOOGLE_CLIENT_ID")
@@ -146,7 +137,6 @@ async def google_login():
     return {"auth_url": auth_url}
 
 @router.get("/google/callback")
-@limiter.limit("3/hour") 
 async def google_callback(code: str, db: Session = Depends(get_db)):
     """Handle Google OAuth callback"""
     try:

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.response import JSONResponse
+from fastapi.response import JSONResponse 
 from sqlalchemy.orm import Session
 from datetime import date
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -82,7 +82,7 @@ app.include_router(notification_router, tags=["Notifications"])
 
 # Health checks
 @app.get("/")
-@limiter.limit("1/hour")
+@limiter.limit("60/minute")
 async def root():
     return {
         "message": "Habitual API is running",
@@ -92,13 +92,13 @@ async def root():
     }
 
 @app.get("/health")
-@limiter.limit("1/hour")
+@limiter.limit("120/minute")
 async def health_check():
     return {"status": "healthy"}
 
 # Daily habit status
 @app.get("/habits/today/status")
-@limiter.limit("1/day") 
+@limiter.limit("30/minute") 
 def get_today_status(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
