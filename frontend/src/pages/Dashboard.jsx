@@ -304,7 +304,18 @@ console.log('Debug:', {
 });
   return (
     <div className="min-h-screen bg-bg">
-      <Navbar user={user} />
+      {/* <Navbar user={user} /> */}
+
+      {/* Back Button to lending page*/}
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 text-gray-400 hover:text-green transition group"
+        >
+          <span className="group-hover:-translate-x-1 transition-transform">←</span>
+          Back to Home
+        </button>
+      </div>
 
       <div className="max-w-[1800px] mx-auto p-6">
         

@@ -108,7 +108,7 @@ const Leaderboard = () => {
 
   return (
     <div className="min-h-screen bg-bg">
-      <Navbar user={user} />
+      {/* <Navbar user={user} /> */}
 
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-6 py-4">
