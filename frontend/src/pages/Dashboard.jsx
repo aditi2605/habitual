@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Loader2, Edit2, Trash2, X, Bell, TrendingUp, Target, Clock, Flame, ChevronRight, Calendar, BarChart3 } from 'lucide-react';
-import Navbar from '../components/layout/NavBar';
+// import Navbar from '../components/layout/NavBar';
 import HabitForm from '../components/habits/HabitForm';
 import { habits, logs, analytics, auth } from '../services/api';
 
@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [notifications, setNotifications] = useState([]);
+  const navigate = useNavigate();
 
 useEffect(() => {
   // Fetch user info on mount
