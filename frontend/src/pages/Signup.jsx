@@ -74,9 +74,18 @@ const Signup = () => {
   };
 
   // Social login handlers
-  const handleGoogleSignup = () => {
-    alert('Google OAuth integration coming soon!');
-    window.location.href = `${process.env.REACT_APP_API_URL}/auth/google/login`;
+  const handleGoogleSignup = async () => {
+    try {
+      // Get the auth URL from backend
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/google/login`);
+      const data = await response.json();
+      
+      // Redirect to Google's OAuth page
+      window.location.href = data.auth_url;
+    } catch (error) {
+      console.error('Google signup error:', error);
+      setError('Failed to initiate Google signup. Please try again.');
+    }
   };
 
   // const handleFacebookSignup = () => {

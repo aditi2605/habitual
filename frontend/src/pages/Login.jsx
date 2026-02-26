@@ -32,9 +32,18 @@ const Login = () => {
   };
 
   // Social login handlers
-  const handleGoogleLogin = () => {
-    alert('Google OAuth integration coming soon!');
-    window.location.href = `${process.env.REACT_APP_API_URL}/auth/google/login`;
+  const handleGoogleLogin = async () => {
+    try {
+      // Get the auth URL from backend
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/google/login`);
+      const data = await response.json();
+      
+      // Redirect to Google's OAuth page
+      window.location.href = data.auth_url;
+    } catch (error) {
+      console.error('Google login error:', error);
+      setError('Failed to initiate Google login. Please try again.');
+    }
   };
 
   // const handleFacebookLogin = () => {
