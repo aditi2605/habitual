@@ -25,9 +25,6 @@ const NavBar = () => {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="text-2xl md:text-3xl font-serif text-green-light flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-green to-green-light rounded-lg flex items-center justify-center text-lg">
-              🌿
-            </div>
             habitual
           </Link>
           

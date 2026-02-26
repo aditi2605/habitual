@@ -13,16 +13,19 @@ const api = axios.create({
 // Add token to every request if it exists
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if(token){
+        console.log('Adding token to request:', config.url);
         config.headers.Authorization = `Bearer ${token}`;
+    }else {
+        console.warn('No token found for request:', config.url);
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-//HELPER FUNCTIONS
+//helper function
 
 // Transform backend habit to frontend format
 const transformHabitFromBackend = (habit) => {

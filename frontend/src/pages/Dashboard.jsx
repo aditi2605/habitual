@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+// import { useNavigate } from 'react-router-dom';
 import { Plus, Loader2, Edit2, Trash2, X, Bell, TrendingUp, Target, Clock, Flame, ChevronRight, Calendar, BarChart3 } from 'lucide-react';
 import Navbar from '../components/layout/NavBar';
 import HabitForm from '../components/habits/HabitForm';
@@ -16,6 +17,26 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [notifications, setNotifications] = useState([]);
+
+useEffect(() => {
+  // Fetch user info on mount
+  const fetchUserInfo = async () => {
+    try {
+      const response = await auth.getMe();
+      setUser(response.data);
+      console.log('User info loaded:', response.data);
+    } catch (error) {
+      console.error('Failed to fetch user info:', error);
+      // If unauthorized, redirect to login
+      if (error.response?.status === 401) {
+        window.location.href = '/login';
+      }
+    }
+  };
+
+  fetchUserInfo();
+}, []);
+
   const getBarColor = (percentage) => {
     const pct = Math.max(0, Math.min(100, percentage));
     
