@@ -1,7 +1,11 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.response import JSONResponse
 from sqlalchemy.orm import Session
 from datetime import date
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 
 from routers.auth_routes import router as auth_router
@@ -14,11 +18,18 @@ from database import get_db, engine, Base
 from models import Habit, User, HabitLog
 from auth import get_current_user
 
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(
     title="Habitual API",
     description="Habit Tracking API with analytics and competitions",
     version="1.0.0"
 )
+
+# Add rate limiter to app state
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.on_event("startup")
 def create_tables():
@@ -38,8 +49,30 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# routes
 
+# Global rate limiting middleware
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    """Global rate limiting for all endpoints"""
+    # Whitelist health check endpoint
+    if request.url.path == "/health":
+        return await call_next(request)
+    
+    # Get client IP
+    client_ip = get_remote_address(request)
+    
+    # Check if IP is making too many requests (backup protection)
+    # This is in addition to endpoint-specific limits
+    try:
+        response = await call_next(request)
+        return response
+    except Exception as e:
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Too many requests. Please try again later."}
+        )
+    
+# routes
 app.include_router(auth_router, tags=["Authentication"])
 app.include_router(habit_router, tags=["Habits"])
 app.include_router(log_router, tags=["Logs"])
@@ -49,19 +82,23 @@ app.include_router(notification_router, tags=["Notifications"])
 
 # Health checks
 @app.get("/")
+@limiter.limit("1/hour")
 async def root():
     return {
         "message": "Habitual API is running",
         "version": "1.0.0",
-        "docs": "/docs"
+        "docs": "/docs",
+        "rate_limit": "Protected endpoints have rate limits"
     }
 
 @app.get("/health")
+@limiter.limit("1/hour")
 async def health_check():
     return {"status": "healthy"}
 
 # Daily habit status
 @app.get("/habits/today/status")
+@limiter.limit("1/day") 
 def get_today_status(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)

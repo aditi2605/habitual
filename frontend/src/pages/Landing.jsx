@@ -233,7 +233,6 @@ const Landing = () => {
     <div className="min-h-screen bg-bg text-white">
       {/* Navbar */}
       <NavBar />
-
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-6 md:px-12 pt-16 md:pt-24 pb-12 text-center">
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif leading-tight mb-6 reveal">

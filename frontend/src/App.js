@@ -5,6 +5,7 @@ import { isAuthenticated } from './utils/auth';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import AuthCallback from './pages/AuthCallback';
 import Dashboard from './pages/Dashboard';
 import Leaderboard from './pages/Leaderboard';
 
@@ -35,6 +36,11 @@ function App() {
           element={
             isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Signup />
           } 
+        />
+
+        <Route
+          path="/auth/callback"
+          element={<AuthCallback />}
         />
 
         {/* Protected Routes */}
