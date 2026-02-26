@@ -107,15 +107,7 @@ const Leaderboard = () => {
 
   return (
     <div className="min-h-screen bg-bg">
-      {/* Header with User Greeting */}
-      <div className="max-w-7xl mx-auto px-6 mb-4">
-        {user && (
-          <div className="text-sm text-gray-400">
-            Welcome back, <span className="text-green-light font-semibold">{user.first_name} !</span>
-          </div>
-        )}
-      </div>
-
+    
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-6 py-4">
         <button
@@ -126,6 +118,12 @@ const Leaderboard = () => {
           Back to Dashboard
         </button>
       </div>
+      
+      {/* greeting */}
+      <h1 className="text-4xl font-serif leading-tight">
+          Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, 
+          <span className="text-green-light"> {user?.first_name} !</span>
+      </h1>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         
