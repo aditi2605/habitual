@@ -316,7 +316,7 @@ console.log('Debug:', {
           </div>
           <h1 className="text-4xl font-serif leading-tight">
             Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, 
-            <span className="text-green-light"> {user?.first_name}</span>
+            <span className="text-green-light"> {user?.first_name} !</span>
           </h1>
         </div>
 

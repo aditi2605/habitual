@@ -331,7 +331,7 @@ const Signup = () => {
           )}
 
            {/* Social Login Buttons */}
-          <div className="grid grid-cols-2 gap-3 mb-6 align-center items-center justify-center">
+          <div className="flex justify-center mb-6">
             <button
               onClick={handleGoogleSignup}
               className="flex items-center justify-center gap-2 px-4 py-3 bg-surface border border-border rounded-xl hover:border-green transition align-center items-center justify-center"
