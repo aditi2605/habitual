@@ -330,9 +330,9 @@ const Signup = () => {
 
             <p className="text-xs text-gray-500 text-center leading-relaxed">
               By signing up you agree to our{' '}
-              <a href="#" className="text-green hover:underline">Terms</a>
+              <a href="/terms" className="text-green hover:underline">Terms</a>
               {' '}and{' '}
-              <a href="#" className="text-green hover:underline">Privacy Policy</a>.
+              <a href="/privacypolicy" className="text-green hover:underline">Privacy Policy</a>.
             </p>
 
             <div className="text-center text-sm text-gray-500">
