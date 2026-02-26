@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from fastapi.response import RedirectResponse 
+from fastapi.responses import RedirectResponse 
 from sqlalchemy.orm import Session
 from datetime import timedelta
 import os
