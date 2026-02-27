@@ -311,28 +311,33 @@ console.log('Debug:', {
       {/* <Navbar user={user} /> */}
       <div className="max-w-[1800px] mx-auto p-6">
       
-        {/* Header with Date */}
-        <div className="mb-6">
-          {/* Back Button */}
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-green transition group mb-6"
-          >
-            <LogOut size={16} className="text-gray-400 group-hover:text-red-500" />
-            Logout
-          </button>
-    
+        {/* Header section*/}
+        <div className="mb-8">
+          {/* Logout Button */}
+          <div className="mb-6">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-400 hover:text-red-500 transition group"
+            >
+              <LogOut size={16} className="group-hover:-translate-x-1 transition-transform" />
+              <span>Logout</span>
+            </button>
+          </div>
+          
+          {/* Date & Greeting */}
+          <div>
             {/* Date */}
             <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-gray-500 mb-2">
               <Calendar size={12} />
               {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
             </div>
-      
-          {/* Greeting */}
-          <h1 className="text-3xl md:text-4xl font-serif leading-tight">
-            Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, 
-            <span className="text-green-light"> {user?.first_name}!</span>
-          </h1>
+            
+            {/* Greeting */}
+            <h1 className="text-3xl md:text-4xl font-serif leading-tight">
+              Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, 
+              <span className="text-green-light"> {user?.first_name}!</span>
+            </h1>
+          </div>
         </div>
 
         {/* Main Grid Layout */}

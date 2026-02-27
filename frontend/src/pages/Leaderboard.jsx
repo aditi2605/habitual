@@ -109,26 +109,31 @@ const Leaderboard = () => {
     <div className="min-h-screen bg-bg">
     
       {/* Header Section */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-6 py-6 border-b border-border/30">
         {/* Back Button */}
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-gray-400 hover:text-green transition group mb-6"
-        >
-          <span className="group-hover:-translate-x-1 transition-transform">←</span>
-          Back to Dashboard
-        </button>
+        <div className="mb-6">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 text-sm text-gray-400 hover:text-green transition group"
+          >
+            <span className="group-hover:-translate-x-1 transition-transform">←</span>
+            Back to Dashboard
+          </button>
+        </div>
         
-        {/* Greeting */}
-        <h1 className="text-3xl md:text-4xl font-serif leading-tight mb-2">
-          Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, 
-          <span className="text-green-light"> {user?.first_name}!</span>
-        </h1>
-        
-        {/* Date */}
-        <div className="flex items-center gap-2 text-xs text-gray-500">
-          <Calendar size={12} />
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+        {/* Date & Greeting */}
+        <div>
+          {/* Date */}
+          <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-gray-500 mb-2">
+            <Calendar size={12} />
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+          </div>
+          
+          {/* Greeting */}
+          <h1 className="text-3xl md:text-4xl font-serif leading-tight">
+            Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, 
+            <span className="text-green-light"> {user?.first_name}!</span>
+          </h1>
         </div>
       </div>
 
