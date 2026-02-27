@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Plus, Loader2, Edit2, Trash2, X, Bell, TrendingUp, Target, Clock, Flame, ChevronRight, Calendar, BarChart3 } from 'lucide-react';
+import { Plus, Loader2, Edit2, Trash2, X, Bell, TrendingUp, Target, Clock, Flame, ChevronRight, Calendar, BarChart3, LogOut } from 'lucide-react';
 import HabitForm from '../components/habits/HabitForm';
 import { habits, logs, analytics, auth } from '../services/api';
+import { removeToken } from '../utils/auth'
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -267,6 +268,13 @@ useEffect(() => {
   );
 }
 
+const handleLogout = () => {
+  //clear token
+  removeToken();
+  //redirect to the landing page
+  window.location.href = "/";
+}
+
 const todayHabitsArray = todayStatus?.habits || [];
 const incompleteHabits = todayHabitsArray.filter(h => !h.completed_today);
 const completedHabits = todayHabitsArray.filter(h => h.completed_today);
@@ -279,8 +287,6 @@ let recalculatedWeeklyAverage = 0;
 if (weeklyData?.days && weeklyData.days.length > 0) {
   // For each day, recalculate percentage based on actual habits
   const dailyPercentages = weeklyData.days.map(day => {
-    // If backend provides correct per-day data, use it
-    // Otherwise, we can only accurately calculate today
     return day.completion_percentage;
   });
   recalculatedWeeklyAverage = Math.round(
@@ -309,11 +315,11 @@ console.log('Debug:', {
         <div className="mb-6">
           {/* Back Button */}
           <button
-            onClick={() => window.location.href = '/'}
-            className="flex items-center gap-2 text-gray-400 hover:text-green transition group mb-6"
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-green transition group mb-6"
           >
-            <span className="group-hover:-translate-x-1 transition-transform">←</span>
-            Back to Home
+            <LogOut size={16} className="text-gray-400 group-hover:text-red-500" />
+            Logout
           </button>
     
             {/* Date */}
