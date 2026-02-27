@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Plus, Loader2, Edit2, Trash2, X, Bell, TrendingUp, Target, Clock, Flame, ChevronRight, Calendar, BarChart3 } from 'lucide-react';
 import HabitForm from '../components/habits/HabitForm';
 import { habits, logs, analytics, auth } from '../services/api';
@@ -16,7 +15,6 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [notifications, setNotifications] = useState([]);
-  const navigate = useNavigate();
 
 useEffect(() => {
   // Fetch user info on mount
@@ -311,7 +309,7 @@ console.log('Debug:', {
         <div className="mb-6">
           {/* Back Button */}
           <button
-            onClick={() => navigate('/')}
+            onClick={() => window.location.href = '/'}
             className="flex items-center gap-2 text-gray-400 hover:text-green transition group mb-6"
           >
             <span className="group-hover:-translate-x-1 transition-transform">←</span>
@@ -659,7 +657,7 @@ console.log('Debug:', {
                     
                     {/* Y-axis grid lines and labels */}
                     {[0, 25, 50, 75, 100].map((value) => {
-                      const y = 120 - (value * 1.0); // Adjusted for better spacing
+                      const y = 120 - (value * 1.0); 
                       return (
                         <g key={value}>
                           <line
@@ -769,7 +767,7 @@ console.log('Debug:', {
                               textAnchor="middle"
                               fontFamily="monospace"
                             >
-                              Week {i + 1}
+                              Month {i + 1}
                             </text>
                             <text
                               x={x}
@@ -806,7 +804,7 @@ console.log('Debug:', {
                           fontFamily="monospace"
                           fontWeight="600"
                         >
-                          W{i + 1}
+                          M{i + 1}
                         </text>
                       );
                     })}

@@ -147,20 +147,6 @@ const Leaderboard = () => {
           </p>
         </div>
             <div className="max-w-7xl mx-auto px-6 py-8">
-              
-              {/* Header */}
-              <div className="mb-8 text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green/10 border border-green/20 text-green-light text-sm mb-4">
-                  <Trophy className="w-4 h-4" />
-                  {useDummyData ? 'Preview Mode' : 'Live Competition'}
-                </div>
-                <h1 className="text-4xl md:text-5xl font-serif mb-3">
-                  🏆 Global <span className="text-green-light italic">Leaderboard</span>
-                </h1>
-                <p className="text-gray-400 text-lg">
-                  Compete with others, earn badges, and climb the rankings!
-                </p>
-              </div>
 
               <div className="grid lg:grid-cols-3 gap-6">
                 
