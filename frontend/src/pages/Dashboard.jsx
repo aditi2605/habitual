@@ -305,29 +305,29 @@ console.log('Debug:', {
   return (
     <div className="min-h-screen bg-bg">
       {/* <Navbar user={user} /> */}
-
       <div className="max-w-[1800px] mx-auto p-6">
-        
+      
         {/* Header with Date */}
         <div className="mb-6">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-gray-500 mb-2">
-
-      {/* Back Button to lending page*/}
-            <div className="max-w-7xl mx-auto px-6 py-4">
-              <button
-                onClick={() => navigate('https://habitual-pi.vercel.app')}
-                className="flex items-center gap-2 text-gray-400 hover:text-green transition group"
-              >
-                <span className="group-hover:-translate-x-1 transition-transform">←</span>
-                Back to Home
-              </button>
+          {/* Back Button */}
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-gray-400 hover:text-green transition group mb-6"
+          >
+            <span className="group-hover:-translate-x-1 transition-transform">←</span>
+            Back to Home
+          </button>
+    
+            {/* Date */}
+            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-gray-500 mb-2">
+              <Calendar size={12} />
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
             </div>
-            <Calendar size={12} />
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-          </div>
-          <h1 className="text-4xl font-serif leading-tight">
+      
+          {/* Greeting */}
+          <h1 className="text-3xl md:text-4xl font-serif leading-tight">
             Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, 
-            <span className="text-green-light"> {user?.first_name} !</span>
+            <span className="text-green-light"> {user?.first_name}!</span>
           </h1>
         </div>
 
