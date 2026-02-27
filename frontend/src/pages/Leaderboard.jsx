@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Medal, Crown, Loader2, TrendingUp, Trophy, Award, Flame, Target, Zap } from 'lucide-react';
+import { Medal, Crown, Loader2, TrendingUp, Trophy, Award, Flame, Target, Zap, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { competitions, auth } from '../services/api';
 
